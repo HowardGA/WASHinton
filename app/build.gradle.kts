@@ -7,6 +7,7 @@ plugins {
     id("com.google.gms.google-services")
 }
 
+
 android {
     namespace = "com.example.washinton"
     compileSdk = 34
@@ -63,6 +64,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -74,6 +77,8 @@ dependencies {
     implementation(libs.swipe)
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.androidx.material.icons.extended)
+
 
     implementation(libs.dagger.hilt.android)
     implementation(libs.firebase.crashlytics.buildtools)
@@ -86,5 +91,17 @@ dependencies {
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.firebase:firebase-storage")
     apply(plugin = "com.google.gms.google-services")
+
+    //Scanner
+    implementation( libs.accompanist.permissions.v0310)
+    implementation (libs.androidx.camera.camera2)
+    implementation (libs.androidx.camera.lifecycle.v122)
+    implementation (libs.androidx.camera.view.v122)
+    implementation (libs.barcode.scanning)
+    implementation (libs.text.recognition)
+    implementation (libs.google.accompanist.permissions)
+
+    //Barcode generator
+    implementation(libs.composed.barcodes)
 
 }
