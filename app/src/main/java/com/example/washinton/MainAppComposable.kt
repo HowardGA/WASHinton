@@ -56,19 +56,15 @@ fun MainApp(modifier: Modifier = Modifier) {
             composable("camera/{analyzerType}") { backStackEntry ->
                 val analyzerType = backStackEntry.arguments?.getString("analyzerType")
                     ?.let { AnalyzerType.valueOf(it) }
-                if (analyzerType != null) {
-                    Log.d("MainApp", "AnalyzerType: $analyzerType")
-                    CameraScreen(analyzerType = analyzerType, onScanCompleted = { scannedData ->
-                        // Navigate back to SearchProductsScreen with data
-                        navController.previousBackStackEntry?.savedStateHandle?.set(
-                            "scannedData",
-                            scannedData
-                        )
+
+                analyzerType?.let {
+                    CameraScreen(analyzerType = it, onScanCompleted = { scannedData ->
+                        navController.previousBackStackEntry?.savedStateHandle?.set("scannedData", scannedData)
                         navController.popBackStack()
                     })
-
                 }
             }
+
 
             composable("receipts") {
                 ReceiptPrintSheet(navController)

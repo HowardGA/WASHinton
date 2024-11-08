@@ -1,249 +1,94 @@
 package com.example.washinton.feature.products
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.washinton.feature.api.ProductRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 @HiltViewModel
-class SearchProductsViewModel  @Inject constructor() : ViewModel() {
+class SearchProductsViewModel @Inject constructor(
+    private val repository: ProductRepository
+) : ViewModel() {
 
-    private val _isSearching = MutableStateFlow(false)
-    val isSearching = _isSearching.asStateFlow()
+    // StateFlow for product names fetched from API
+    private val _productNames = MutableStateFlow<List<String>>(emptyList())
+    val productNames: StateFlow<List<String>> = _productNames.asStateFlow()
 
-    //second state the text typed by the user
+    //stateFlor for product details
+    private val _productDetails = MutableStateFlow<ProductDetails?>(null)
+    val productDetails: StateFlow<ProductDetails?> = _productDetails.asStateFlow()
+
+    // StateFlow for error messages
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    // StateFlow for managing search input text
     private val _searchText = MutableStateFlow("")
-    val searchText = _searchText.asStateFlow()
+    val searchText: StateFlow<String> = _searchText.asStateFlow()
 
-    //third state the list to be filtered
-    private val _countriesList = MutableStateFlow(countries)
-    val countriesList = searchText
-        .combine(_countriesList) { text, countries ->//combine searchText with _contriesList
-            if (text.isBlank()) { //return the entery list of countries if not is typed
-                countries
+    // StateFlow to track whether search is active
+    private val _isSearching = MutableStateFlow(false)
+    val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
+
+    // Combined StateFlow for the filtered product list based on search text
+    val filteredProductNames: StateFlow<List<String>> = _searchText
+        .combine(_productNames) { text, products ->
+            if (text.isBlank()) {
+                products
+            } else {
+                products.filter { product ->
+                    product.contains(text, ignoreCase = true)
+                }
             }
-            countries.filter { country ->// filter and return a list of countries based on the text the user typed
-                country.uppercase().contains(text.trim().uppercase())
-            }
-        }.stateIn(//basically convert the Flow returned from combine operator to StateFlow
+        }
+        .stateIn(
             scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),//it will allow the StateFlow survive 5 seconds before it been canceled
-            initialValue = _countriesList.value
+            started = SharingStarted.WhileSubscribed(5000L),
+            initialValue = emptyList()
         )
 
+    // Function to update search text
     fun onSearchTextChange(text: String) {
         _searchText.value = text
     }
 
-    fun onToogleSearch() {
+    // Toggle search mode on or off
+    fun onToggleSearch() {
         _isSearching.value = !_isSearching.value
         if (!_isSearching.value) {
-            onSearchTextChange("")
+            _searchText.value = ""
         }
     }
-}
 
-private val countries = listOf(
-    "Afghanistan",
-    "Albania",
-    "Algeria",
-    "Andorra",
-    "Angola",
-    "Antigua and Barbuda",
-    "Argentina",
-    "Armenia",
-    "Australia",
-    "Austria",
-    "Azerbaijan",
-    "Bahamas",
-    "Bahrain",
-    "Bangladesh",
-    "Barbados",
-    "Belarus",
-    "Belgium",
-    "Belize",
-    "Benin",
-    "Bhutan",
-    "Bolivia",
-    "Bosnia and Herzegovina",
-    "Botswana",
-    "Brazil",
-    "Brunei",
-    "Bulgaria",
-    "Burkina Faso",
-    "Burundi",
-    "Cambodia",
-    "Cameroon",
-    "Canada",
-    "Cape Verde",
-    "Central African Republic",
-    "Chad",
-    "Chile",
-    "China",
-    "Colombia",
-    "Comoros",
-    "Congo (Brazzaville)",
-    "Congo (Kinshasa)",
-    "Costa Rica",
-    "Croatia",
-    "Cuba",
-    "Cyprus",
-    "Czech Republic",
-    "Denmark",
-    "Djibouti",
-    "Dominica",
-    "Dominican Republic",
-    "Ecuador",
-    "Egypt",
-    "El Salvador",
-    "Equatorial Guinea",
-    "Eritrea",
-    "Estonia",
-    "Eswatini",
-    "Ethiopia",
-    "Fiji",
-    "Finland",
-    "France",
-    "Gabon",
-    "Gambia",
-    "Georgia",
-    "Germany",
-    "Ghana",
-    "Greece",
-    "Grenada",
-    "Guatemala",
-    "Guinea",
-    "Guinea-Bissau",
-    "Guyana",
-    "Haiti",
-    "Holy See",
-    "Honduras",
-    "Hungary",
-    "Iceland",
-    "India",
-    "Indonesia",
-    "Iran",
-    "Iraq",
-    "Ireland",
-    "Israel",
-    "Italy",
-    "Ivory Coast",
-    "Jamaica",
-    "Japan",
-    "Jordan",
-    "Kazakhstan",
-    "Kenya",
-    "Kiribati",
-    "Kuwait",
-    "Kyrgyzstan",
-    "Laos",
-    "Latvia",
-    "Lebanon",
-    "Lesotho",
-    "Liberia",
-    "Libya",
-    "Liechtenstein",
-    "Lithuania",
-    "Luxembourg",
-    "Madagascar",
-    "Malawi",
-    "Malaysia",
-    "Maldives",
-    "Mali",
-    "Malta",
-    "Marshall Islands",
-    "Mauritania",
-    "Mauritius",
-    "Mexico",
-    "Micronesia",
-    "Moldova",
-    "Monaco",
-    "Mongolia",
-    "Montenegro",
-    "Morocco",
-    "Mozambique",
-    "Myanmar",
-    "Namibia",
-    "Nauru",
-    "Nepal",
-    "Netherlands",
-    "New Zealand",
-    "Nicaragua",
-    "Niger",
-    "Nigeria",
-    "North Korea",
-    "North Macedonia",
-    "Norway",
-    "Oman",
-    "Pakistan",
-    "Palau",
-    "Palestine State",
-    "Panama",
-    "Papua New Guinea",
-    "Paraguay",
-    "Peru",
-    "Philippines",
-    "Poland",
-    "Portugal",
-    "Qatar",
-    "Romania",
-    "Russia",
-    "Rwanda",
-    "Saint Kitts and Nevis",
-    "Saint Lucia",
-    "Saint Vincent and the Grenadines",
-    "Samoa",
-    "San Marino",
-    "Sao Tome and Principe",
-    "Saudi Arabia",
-    "Senegal",
-    "Serbia",
-    "Seychelles",
-    "Sierra Leone",
-    "Singapore",
-    "Slovakia",
-    "Slovenia",
-    "Solomon Islands",
-    "Somalia",
-    "South Africa",
-    "South Korea",
-    "South Sudan",
-    "Spain",
-    "Sri Lanka",
-    "Sudan",
-    "Suriname",
-    "Sweden",
-    "Switzerland",
-    "Syria",
-    "Taiwan",
-    "Tajikistan",
-    "Tanzania",
-    "Thailand",
-    "Timor-Leste",
-    "Togo",
-    "Tonga",
-    "Trinidad and Tobago",
-    "Tunisia",
-    "Turkey",
-    "Turkmenistan",
-    "Tuvalu",
-    "Uganda",
-    "Ukraine",
-    "United Arab Emirates",
-    "United Kingdom",
-    "United States of America",
-    "Uruguay",
-    "Uzbekistan",
-    "Vanuatu",
-    "Venezuela",
-    "Vietnam",
-    "Yemen",
-    "Zambia",
-    "Zimbabwe"
-)
+    // Fetch product names from repository
+    fun fetchProductNames() {
+        viewModelScope.launch {
+            repository.getProductNames()
+                .onSuccess { names ->
+                    _productNames.value = names
+                }
+                .onFailure { error ->
+                    _errorMessage.value = error.message
+                }
+        }
+    }
+
+    fun fetchProductDetails(sku: String) {
+        viewModelScope.launch {
+            repository.getProductDetails(sku)
+                .onSuccess { details ->
+                    _productDetails.value = details
+                    Log.d("SearchProductsScreen", "Fetched Product Details: $details")
+                }
+                .onFailure { error ->
+                    _errorMessage.value = error.message
+                    Log.d("SearchProductsScreen", "Error fetching product details: ${error.message}")
+                }
+        }
+    }
+
+}

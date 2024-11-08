@@ -1,23 +1,11 @@
 package com.example.washinton.feature.products
 
-import android.annotation.SuppressLint
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.Search
@@ -29,13 +17,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -44,8 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.washinton.ui.theme.DarkBlue
-import com.example.washinton.ui.theme.LightBlue
 import com.example.washinton.ui.theme.MidBlue
+import androidx.lifecycle.Observer
 
 import android.Manifest
 import android.util.Log
@@ -53,23 +38,24 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import com.example.washinton.feature.camera.AnalyzerType
-import com.example.washinton.feature.camera.CameraScreen
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.shouldShowRationale
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun SearchProductsScreen(navController: NavController) {
-    val viewModel = SearchProductsViewModel()
+fun SearchProductsScreen(navController: NavController, viewModel: SearchProductsViewModel = hiltViewModel()) {
     val searchText by viewModel.searchText.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
-    val countriesList by viewModel.countriesList.collectAsState()
+    val productNamesList by viewModel.productNames.collectAsState()
+    val filteredProductNames by viewModel.filteredProductNames.collectAsState()
+    val productDetails by viewModel.productDetails.collectAsState()
 
-    //Botton Sheet
+    //Bottom Sheet
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,)
@@ -83,40 +69,46 @@ fun SearchProductsScreen(navController: NavController) {
 
 
     // Handle scanned data retrieval and bottom sheet state
-    LaunchedEffect(navController.currentBackStackEntry?.savedStateHandle?.get<String>("scannedData")) {
-        val newScannedData = navController.currentBackStackEntry
-            ?.savedStateHandle?.get<String>("scannedData")
-
-        newScannedData?.let {
-            scannedData = it // Save scanned data locally
-            viewModel.onSearchTextChange(it) // Update view model with scanned data
-            showBottomSheet = true // Show bottom sheet after returning
-            navController.currentBackStackEntry?.savedStateHandle?.remove<String>("scannedData")
+    DisposableEffect(Unit) {
+        val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+        val observer = Observer<String> { newScannedData ->
+            newScannedData?.let {
+                scannedData = it
+                viewModel.fetchProductDetails(it)  // Fetch details using scanned data
+                showBottomSheet = true
+                savedStateHandle?.remove<String>("scannedData")  // Remove data to avoid re-triggering
+            }
         }
+
+        savedStateHandle?.getLiveData<String>("scannedData")?.observeForever(observer)
+
+        onDispose {
+            savedStateHandle?.getLiveData<String>("scannedData")?.removeObserver(observer)
+        }
+    }
+
+
+    LaunchedEffect(Unit) {
+      viewModel.fetchProductNames()
+        Log.d("fetched Data", productNamesList.toString())
     }
 
     // Handle camera permission logic based on button click
     if (isCameraButtonClicked) {
-        Log.d("SearchProductsScreen", "isCameraButtonClicked: $isCameraButtonClicked")
         when {
             cameraPermissionState.status.isGranted -> {
-                // Set analyzerType to BARCODE directly since we only want barcode scanning
-                analyzerType = AnalyzerType.BARCODE
-                Log.d("SearchProductsScreen", "AnalyzerType: $analyzerType")
-                // Navigate to the camera screen with BARCODE analyzer type
-                navController.navigate("camera/${analyzerType.name}")
-                isCameraButtonClicked = false // Reset after navigation
+                isCameraButtonClicked = false // Reset here to avoid re-triggering
+                navController.navigate("camera/${AnalyzerType.BARCODE.name}")
             }
             cameraPermissionState.status.shouldShowRationale -> {
                 Text("Camera permission is required to scan QR codes.")
             }
             else -> {
-                LaunchedEffect(Unit) {
-                    cameraPermissionState.launchPermissionRequest()
-                }
+                LaunchedEffect(Unit) { cameraPermissionState.launchPermissionRequest() }
             }
         }
     }
+
 
     Scaffold(
         topBar = {
@@ -163,7 +155,7 @@ fun SearchProductsScreen(navController: NavController) {
                 onQueryChange = viewModel::onSearchTextChange,
                 onSearch = viewModel::onSearchTextChange,
                 active = isSearching,
-                onActiveChange = { viewModel.onToogleSearch() },
+                onActiveChange = { viewModel.onToggleSearch() },
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Rounded.Search,
@@ -176,7 +168,7 @@ fun SearchProductsScreen(navController: NavController) {
                     .padding(innerPadding)
             ) {
                 LazyColumn {
-                    items(countriesList) { country ->
+                    items(filteredProductNames) { country ->
                         Text(
                             text = country,
                             modifier = Modifier.padding(
@@ -196,7 +188,7 @@ fun SearchProductsScreen(navController: NavController) {
                     sheetState = sheetState,
                     onDismissRequest = { showBottomSheet = false }
                 ) {
-                    ProductsBottomSheetScreen()//Pass data so it can be shown in the sheet
+                    ProductsBottomSheetScreen(details = productDetails)//Pass data so it can be shown in the sheet
                 }
             }
         }

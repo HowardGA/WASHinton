@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AirportShuttle
 import androidx.compose.material.icons.rounded.BackHand
+import androidx.compose.material.icons.rounded.Inventory
 import androidx.compose.material.icons.rounded.Inventory2
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -136,8 +137,8 @@ fun MenuScreen(navController: NavController) {
 
 
                 Icon(
-                    imageVector = Icons.Rounded.BackHand,
-                    contentDescription = "inventory icon",
+                    imageVector = Icons.Rounded.Inventory,
+                    contentDescription = "batches icon",
                     tint = Color.White,
                     modifier = Modifier
                         .size(70.dp)
@@ -147,7 +148,7 @@ fun MenuScreen(navController: NavController) {
 
 
                 Text(
-                    text = "I dont know what else",
+                    text = "Register Incoming Batches",
                     color = Cream,
                     fontWeight = FontWeight.Bold,
                     fontSize = 39.sp,

@@ -104,4 +104,14 @@ dependencies {
     //Barcode generator
     implementation(libs.composed.barcodes)
 
+    // Retrofit
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+
+    // OkHttp (optional, for logging)
+    implementation (libs.logging.interceptor)
+
+    // Coroutine support
+    implementation(libs.kotlinx.coroutines.android)
+
 }

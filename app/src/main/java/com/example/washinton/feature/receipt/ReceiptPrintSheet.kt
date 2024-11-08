@@ -1,5 +1,6 @@
 package com.example.washinton.feature.receipt
 
+import android.Manifest
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,9 +30,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,15 +47,64 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.washinton.feature.camera.AnalyzerType
+import com.example.washinton.feature.products.ProductsBottomSheetScreen
 import com.example.washinton.feature.receipt.ReceiptComponent
 import com.example.washinton.ui.theme.DarkBlue
 import com.example.washinton.ui.theme.MidBlue
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun ReceiptPrintSheet(navController: NavController) {
 
+// Camera permission and analyzer state
+val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
+var analyzerType by remember { mutableStateOf(AnalyzerType.UNDEFINED) }
+var isCameraButtonClicked by remember { mutableStateOf(false) }
 
+var scannedData by rememberSaveable { mutableStateOf<String?>(null) }
+
+//Botton Sheet
+var showBottomSheet by remember { mutableStateOf(false) }
+val sheetState = rememberModalBottomSheetState(
+    skipPartiallyExpanded = false,)
+
+// Handle scanned data retrieval and bottom sheet state
+LaunchedEffect(navController.currentBackStackEntry?.savedStateHandle?.get<String>("scannedData")) {
+    val newScannedData = navController.currentBackStackEntry
+        ?.savedStateHandle?.get<String>("scannedData")
+
+    newScannedData?.let {
+        scannedData = it // Save scanned data locally
+        showBottomSheet = true // Show bottom sheet after returning
+    }
+}
+
+    // Handle camera permission logic based on button click
+    if (isCameraButtonClicked) {
+        when {
+            cameraPermissionState.status.isGranted -> {
+                // Set analyzerType to BARCODE directly since we only want barcode scanning
+                analyzerType = AnalyzerType.BARCODE
+                Log.d("SearchProductsScreen", "AnalyzerType: $analyzerType")
+                // Navigate to the camera screen with BARCODE analyzer type
+                navController.navigate("camera/${analyzerType.name}")
+                isCameraButtonClicked = false // Reset after navigation
+            }
+            cameraPermissionState.status.shouldShowRationale -> {
+                Text("Camera permission is required to scan QR codes.")
+            }
+            else -> {
+                LaunchedEffect(Unit) {
+                    cameraPermissionState.launchPermissionRequest()
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -77,7 +129,7 @@ fun ReceiptPrintSheet(navController: NavController) {
         },
     ){innerPadding ->
         Column (modifier = Modifier.padding(innerPadding).fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
-            Box(modifier = Modifier.size(150.dp).clip(RoundedCornerShape(30.dp)).background(MidBlue)){
+            Box(modifier = Modifier.size(150.dp).clip(RoundedCornerShape(30.dp)).background(MidBlue).clickable { isCameraButtonClicked = true }){
                 Column (modifier = Modifier.fillMaxWidth().fillMaxHeight(),verticalArrangement = Arrangement.SpaceAround, horizontalAlignment = Alignment.CenterHorizontally) {
                     Icon(imageVector = Icons.Rounded.QrCodeScanner, contentDescription = "QR", tint = Color.White, modifier = Modifier.size(100.dp))
                     Text(
@@ -106,6 +158,15 @@ fun ReceiptPrintSheet(navController: NavController) {
             }
 
     }
+        if (showBottomSheet && !scannedData.isNullOrEmpty()) {
+            ModalBottomSheet(
+                modifier = Modifier.fillMaxHeight(),
+                sheetState = sheetState,
+                onDismissRequest = { showBottomSheet = false }
+            ) {
+                ReceiptComponent(orderID = scannedData!!, scanned = true)//This is to show the receipt but  with the button to confirm the order
+            }
+        }
 
     }
 

@@ -1,16 +1,16 @@
 package com.example.washinton.feature.products
 
-import androidx.core.util.Supplier
-
-
-data class Products(
-    val category: String = "",
-    val description: String = "",
-    val id: Int = 0,
-    val image: String = "",
-    val price: Double = 0.0,
-    val name: String = "",
-    val supplier: String = "",
-    val unit: String = "",
-    val weight: Double = 0.0
+data class ProductDetails(
+    val product_id: Int,
+    val name: String,
+    val sku: String,
+    val description: String,
+    val price: String,
+    val status: String,
+    val image: String?,
+    val category_id: Int,
+    val supplier_id: Int,
+    val type: String,
+    val created_at: String?,
+    val updated_at: String?
 )

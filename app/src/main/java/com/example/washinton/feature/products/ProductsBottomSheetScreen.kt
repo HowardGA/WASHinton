@@ -1,5 +1,6 @@
 package com.example.washinton.feature.products
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,15 +29,17 @@ import com.example.washinton.R
 import com.example.washinton.ui.theme.DarkBlue
 
 @Composable
-fun ProductsBottomSheetScreen() {
+fun ProductsBottomSheetScreen(details: ProductDetails? = null) {
 Column (modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(10.dp)){
     Row (verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center)
     {
-        Image(painter = painterResource(id = R.drawable.pinol), contentDescription = null, modifier = Modifier.size(130.dp).weight(1f))
+        Image(painter = painterResource(id = R.drawable.pinol), contentDescription = null, modifier = Modifier
+            .size(130.dp)
+            .weight(1f))
 
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)){
             Text(
-                text = "SKU: Product SKU",
+                text = "SKU: ${details?.sku}",
                 fontSize = 18.sp,
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.SemiBold,
@@ -71,7 +74,9 @@ Column (modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.sp
         textAlign = TextAlign.Center,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(bottom = 10.dp).height(70.dp)
+        modifier = Modifier
+            .padding(bottom = 10.dp)
+            .height(70.dp)
     )
 
     Text(

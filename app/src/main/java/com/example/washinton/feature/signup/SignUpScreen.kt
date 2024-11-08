@@ -1,6 +1,5 @@
 package com.example.washinton.feature.signup
 
-
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

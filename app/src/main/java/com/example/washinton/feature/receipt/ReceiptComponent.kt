@@ -1,6 +1,9 @@
 package com.example.washinton.feature.receipt
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,12 +16,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -30,18 +37,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.washinton.R
+import com.example.washinton.ui.theme.LightBlue
 import com.example.washinton.ui.theme.MidBlue
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReceiptComponent() {
+fun ReceiptComponent(orderID: String = "", scanned: Boolean = false, batch: Boolean = false) {
     val barcodeValue = "123456789012"
 
     ElevatedCard(
@@ -49,13 +56,21 @@ fun ReceiptComponent() {
             defaultElevation = 6.dp
         ),
         modifier = Modifier
-            .fillMaxHeight().fillMaxWidth()
+            .fillMaxHeight()
+            .fillMaxWidth()
     ) {
-        Column (modifier = Modifier.padding(10.dp)){ //make this column scrollable
+        Column(modifier = Modifier.padding(10.dp)) { //make this column scrollable
 
-            Row (horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth().padding(10.dp)){
-                Box (modifier = Modifier.size(100.dp).clip(RoundedCornerShape(100.dp))) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
+                Box(modifier = Modifier
+                    .size(100.dp)
+                    .clip(RoundedCornerShape(100.dp))) {
                     Image(
                         painter = painterResource(id = R.drawable.washinton_logo_large),
                         contentDescription = "logo"
@@ -64,12 +79,14 @@ fun ReceiptComponent() {
             }
 
             TextField(
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = MidBlue,
                     disabledTextColor = Color.White
                 ),
-                label = { Text(text = "Order ID", color = Color.White) },
+                label = { Text(text = if (batch) "Batch Code" else "Order ID", color = Color.White) },
                 value = "1234567890",//add here the values from the DB
                 shape = RoundedCornerShape(16.dp),
                 enabled = false,
@@ -78,12 +95,14 @@ fun ReceiptComponent() {
             Spacer(modifier = Modifier.size(10.dp))
 
             TextField(
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = MidBlue,
                     disabledTextColor = Color.White
                 ),
-                label = { Text(text = "Deliver To", color = Color.White) },
+                label = { Text(text = if (batch) "Name" else "Deliver To", color = Color.White) },
                 value = "Store A",//add here the values from the DB
                 shape = RoundedCornerShape(16.dp),
                 enabled = false,
@@ -92,16 +111,26 @@ fun ReceiptComponent() {
             Spacer(modifier = Modifier.size(10.dp))
 
             TextField(
-                modifier = Modifier.fillMaxWidth().height(50.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = MidBlue,
                     disabledTextColor = Color.White
                 ),
-                label = { Text(text = "Something Else", color = Color.White) },
+                label = { Text(text = if (batch) "Requested at" else "Something else", color = Color.White) },
                 value = "Place Holder",//add here the values from the DB
                 shape = RoundedCornerShape(16.dp),
                 enabled = false,
                 onValueChange = {})
+
+            SuggestionChip(
+                onClick = {},
+                label = { Text(text ="Received", color = Color.Green, modifier = Modifier.padding(8.dp)) },
+                modifier = Modifier.fillMaxWidth().padding(10.dp),
+                border = BorderStroke(2.dp, Color.Green),
+            )
+
 
             Spacer(modifier = Modifier.size(20.dp))
 
@@ -116,10 +145,15 @@ fun ReceiptComponent() {
             Spacer(modifier = Modifier.size(20.dp))
 
             //Items to deliver
-            Row (verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth().padding(10.dp)){
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
                 //first col
-                Column (modifier = Modifier.weight(1f)){
+                Column(modifier = Modifier.weight(1f)) {
 
                     Text(
                         text = "Item 1",
@@ -131,10 +165,9 @@ fun ReceiptComponent() {
                     HorizontalDivider(thickness = 2.dp, modifier = Modifier.padding(bottom = 10.dp))
 
 
-
                 }
                 //seccond col
-                Column (modifier = Modifier.weight(1f)){
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "QTY 1",
                         fontSize = 14.sp,
@@ -146,11 +179,17 @@ fun ReceiptComponent() {
 
                 }
             }
+
             //Delete this row
-            Row (verticalAlignment = Alignment.CenterVertically,horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth().padding(10.dp)){
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            ) {
                 //first col
-                Column (modifier = Modifier.weight(1f)){
+                Column(modifier = Modifier.weight(1f)) {
 
                     Text(
                         text = "Item 1",
@@ -162,10 +201,9 @@ fun ReceiptComponent() {
                     HorizontalDivider(thickness = 2.dp, modifier = Modifier.padding(bottom = 10.dp))
 
 
-
                 }
                 //seccond col
-                Column (modifier = Modifier.weight(1f)){
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "QTY 1",
                         fontSize = 14.sp,
@@ -181,9 +219,14 @@ fun ReceiptComponent() {
             }
 
 
-            if (BarcodeType.UPC_A.isValueValid(barcodeValue)) {
-                Row (horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth().padding(10.dp)) {
+            if (BarcodeType.UPC_A.isValueValid(barcodeValue) && !scanned) {
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp)
+                ) {
                     Barcode(
                         modifier = Modifier
                             .width(150.dp)
@@ -195,9 +238,23 @@ fun ReceiptComponent() {
                 }
             }
 
+            if (scanned) {
+                Button(onClick = { /*TODO*/ }, modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp), colors = ButtonDefaults.buttonColors(LightBlue)) {
+                    Text(
+                        text = "Confirm Order $orderID",
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+
 // You must handle invalid data yourself
-            if (!BarcodeType.UPC_A.isValueValid(barcodeValue)) {
-                Text("this is not code 128 compatible")
+                if (!BarcodeType.UPC_A.isValueValid(barcodeValue)) {
+                    Text("this is not code 128 compatible")
+                }
             }
         }
     }
@@ -205,6 +262,6 @@ fun ReceiptComponent() {
 
 @Preview
 @Composable
-private fun ReceiptComponentPreview() {
+ private fun ReceiptComponentPreview() {
     ReceiptComponent()
 }
