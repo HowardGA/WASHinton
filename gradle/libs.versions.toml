@@ -3,6 +3,7 @@ accompanistPermissions = "0.31.0"
 accompanistPermissionsVersion = "0.31.3-beta"
 agp = "8.6.0"
 barcodeScanning = "17.3.0"
+barcodeScanningVersion = "17.0.0"
 cameraCamera2 = "1.4.0"
 cameraLifecycleVersion = "1.2.2"
 cameraViewVersion = "1.2.2"
@@ -37,16 +38,19 @@ materialIconsExtended = "1.6.8"
 cameraLifecycle = "1.4.0"
 cameraView = "1.4.0"
 textRecognition = "16.0.1"
+foundationLayoutAndroid = "1.6.8"
 
 
 [libraries]
 accompanist-permissions-v0310 = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissions" }
 androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "cameraCamera2" }
+androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "cameraCamera2" }
 androidx-camera-lifecycle-v122 = { module = "androidx.camera:camera-lifecycle", version.ref = "cameraLifecycleVersion" }
 androidx-camera-view-v122 = { module = "androidx.camera:camera-view", version.ref = "cameraViewVersion" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanning" }
+barcode-scanning-v1700 = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcodeScanningVersion" }
 composed-barcodes = { module = "com.simonsickle:composed-barcodes", version.ref = "composedBarcodes" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 google-accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPermissionsVersion" }
@@ -89,6 +93,7 @@ navigation-compose = { module = "androidx.navigation:navigation-compose", versio
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraLifecycle" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraView" }
 text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "textRecognition" }
+androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

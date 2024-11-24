@@ -38,15 +38,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.rememberPermissionState
-import com.example.washinton.feature.camera.AnalyzerType
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.shouldShowRationale
+import com.example.washinton.feature.camera.BarcodeScanner
+import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchProductsScreen(navController: NavController, viewModel: SearchProductsViewModel = hiltViewModel()) {
     val searchText by viewModel.searchText.collectAsState()
@@ -59,54 +57,33 @@ fun SearchProductsScreen(navController: NavController, viewModel: SearchProducts
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = false,)
+    var bottomSheetDetails by remember { mutableStateOf<ProductDetails?>(null) }
 
     // Camera permission and analyzer state
-    val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
-    var analyzerType by remember { mutableStateOf(AnalyzerType.UNDEFINED) }
-    var isCameraButtonClicked by remember { mutableStateOf(false) }
-
-    var scannedData by rememberSaveable { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    val barcodeScanner = remember { BarcodeScanner(context) }
+    var scannedData by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
 
 
     // Handle scanned data retrieval and bottom sheet state
-    DisposableEffect(Unit) {
-        val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
-        val observer = Observer<String> { newScannedData ->
-            newScannedData?.let {
-                scannedData = it
-                viewModel.fetchProductDetails(it)  // Fetch details using scanned data
-                showBottomSheet = true
-                savedStateHandle?.remove<String>("scannedData")  // Remove data to avoid re-triggering
-            }
+    DisposableEffect(scannedData) {
+        if (scannedData.isNotEmpty()) {
+            viewModel.fetchProductDetails(scannedData) // Fetch details using scanned data
+            Log.d("scannedData", scannedData)
+            showBottomSheet = true
         }
+        onDispose { /* i think i don't need nothing here */ }
+    }
 
-        savedStateHandle?.getLiveData<String>("scannedData")?.observeForever(observer)
-
-        onDispose {
-            savedStateHandle?.getLiveData<String>("scannedData")?.removeObserver(observer)
-        }
+    LaunchedEffect(productDetails) { // Trigger when productDetails changes
+        bottomSheetDetails = productDetails // Update bottomSheetDetails
     }
 
 
     LaunchedEffect(Unit) {
       viewModel.fetchProductNames()
         Log.d("fetched Data", productNamesList.toString())
-    }
-
-    // Handle camera permission logic based on button click
-    if (isCameraButtonClicked) {
-        when {
-            cameraPermissionState.status.isGranted -> {
-                isCameraButtonClicked = false // Reset here to avoid re-triggering
-                navController.navigate("camera/${AnalyzerType.BARCODE.name}")
-            }
-            cameraPermissionState.status.shouldShowRationale -> {
-                Text("Camera permission is required to scan QR codes.")
-            }
-            else -> {
-                LaunchedEffect(Unit) { cameraPermissionState.launchPermissionRequest() }
-            }
-        }
     }
 
 
@@ -133,7 +110,9 @@ fun SearchProductsScreen(navController: NavController, viewModel: SearchProducts
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { isCameraButtonClicked = true; Log.d("SearchProductsScreen", "Camera button clicked") },
+                onClick = { scope.launch {
+                    scannedData = barcodeScanner.startScan().toString()
+                } },
                 containerColor = MidBlue
             ) {
                 Icon(Icons.Rounded.QrCodeScanner, contentDescription = "Add", tint = Color.White)
@@ -186,9 +165,10 @@ fun SearchProductsScreen(navController: NavController, viewModel: SearchProducts
                 ModalBottomSheet(
                     modifier = Modifier.fillMaxHeight(),
                     sheetState = sheetState,
-                    onDismissRequest = { showBottomSheet = false }
+                    onDismissRequest = { showBottomSheet = false
+                        scannedData = "" }
                 ) {
-                    ProductsBottomSheetScreen(details = productDetails)//Pass data so it can be shown in the sheet
+                    ProductsBottomSheetScreen(details = bottomSheetDetails)//Pass data so it can be shown in the sheet
                 }
             }
         }

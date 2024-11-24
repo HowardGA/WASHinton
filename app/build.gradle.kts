@@ -66,6 +66,7 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.foundation.layout.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -93,13 +94,8 @@ dependencies {
     apply(plugin = "com.google.gms.google-services")
 
     //Scanner
-    implementation( libs.accompanist.permissions.v0310)
-    implementation (libs.androidx.camera.camera2)
-    implementation (libs.androidx.camera.lifecycle.v122)
-    implementation (libs.androidx.camera.view.v122)
-    implementation (libs.barcode.scanning)
-    implementation (libs.text.recognition)
-    implementation (libs.google.accompanist.permissions)
+    implementation("com.google.android.gms:play-services-code-scanner:16.1.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.2")
 
     //Barcode generator
     implementation(libs.composed.barcodes)
