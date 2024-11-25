@@ -15,8 +15,8 @@ class SearchProductsViewModel @Inject constructor(
 ) : ViewModel() {
 
     // StateFlow for product names fetched from API
-    private val _productNames = MutableStateFlow<List<String>>(emptyList())
-    val productNames: StateFlow<List<String>> = _productNames.asStateFlow()
+    private val _productNames = MutableStateFlow<List<ProductNameSku>>(emptyList())
+    val productNames: StateFlow<List<ProductNameSku>> = _productNames.asStateFlow()
 
     //stateFlor for product details
     private val _productDetails = MutableStateFlow<ProductDetails?>(null)
@@ -35,13 +35,13 @@ class SearchProductsViewModel @Inject constructor(
     val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
 
     // Combined StateFlow for the filtered product list based on search text
-    val filteredProductNames: StateFlow<List<String>> = _searchText
-        .combine(_productNames) { text, products ->
+    val filteredProductNames: StateFlow<List<ProductNameSku>> = _searchText
+        .combine(_productNames) { text, productNames ->
             if (text.isBlank()) {
-                products
+                productNames // Return all products when no search text
             } else {
-                products.filter { product ->
-                    product.contains(text, ignoreCase = true)
+                productNames.filter { product ->
+                    product.name.contains(text, ignoreCase = true) // Filter by name
                 }
             }
         }
@@ -50,6 +50,8 @@ class SearchProductsViewModel @Inject constructor(
             started = SharingStarted.WhileSubscribed(5000L),
             initialValue = emptyList()
         )
+
+
 
     // Function to update search text
     fun onSearchTextChange(text: String) {
@@ -69,7 +71,7 @@ class SearchProductsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.getProductNames()
                 .onSuccess { names ->
-                    _productNames.value = names
+                    _productNames.value = names // Assign the list directly
                 }
                 .onFailure { error ->
                     _errorMessage.value = error.message

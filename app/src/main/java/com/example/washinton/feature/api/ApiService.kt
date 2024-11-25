@@ -1,6 +1,7 @@
 package com.example.washinton.feature.api
 
 import com.example.washinton.feature.products.ProductDetails
+import com.example.washinton.feature.products.ProductNameSku
 import com.example.washinton.feature.receipt.MessageResponse
 import com.example.washinton.feature.receipt.TransferOrder
 import com.example.washinton.feature.receipt.TransferOrderDetails
@@ -11,7 +12,7 @@ import retrofit2.http.Path
 
 interface ApiService {
     @GET("products/list-names")
-    suspend fun getProductsNames(): Response<List<String>>
+    suspend fun getProductsNames(): Response<List<ProductNameSku>>
 
     @GET("product/sku/{sku}")
     suspend fun getProductDetails(@Path("sku") sku: String): ProductDetails

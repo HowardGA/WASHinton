@@ -34,6 +34,7 @@ import androidx.lifecycle.Observer
 
 import android.Manifest
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -123,7 +124,7 @@ fun SearchProductsScreen(navController: NavController, viewModel: SearchProducts
             SearchBar(
                 placeholder = {
                     Text(
-                        text = "Search SKU",
+                        text = "Search by Product Name",
                         color = Color.White,
                         fontSize = 18.sp,
                         modifier = Modifier.padding(start = 10.dp)
@@ -147,15 +148,16 @@ fun SearchProductsScreen(navController: NavController, viewModel: SearchProducts
                     .padding(innerPadding)
             ) {
                 LazyColumn {
-                    items(filteredProductNames) { country ->
+                    items(filteredProductNames) { productName ->
                         Text(
-                            text = country,
+                            text = productName.name,
                             modifier = Modifier.padding(
                                 start = 8.dp,
                                 top = 4.dp,
                                 end = 8.dp,
                                 bottom = 4.dp
                             )
+                                .clickable( onClick = {scannedData = productName.sku; showBottomSheet = true})
                         )
                     }
                 }

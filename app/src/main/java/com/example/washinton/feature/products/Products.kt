@@ -15,3 +15,8 @@ data class ProductDetails(
     val unit: String,
     val image: String
     )
+
+data class ProductNameSku(
+    val name: String,
+    val sku: String
+)

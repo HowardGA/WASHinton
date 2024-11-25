@@ -1,6 +1,7 @@
 package com.example.washinton.feature.api
 
 import com.example.washinton.feature.products.ProductDetails
+import com.example.washinton.feature.products.ProductNameSku
 import com.example.washinton.feature.receipt.TransferOrderDetails
 import com.example.washinton.feature.receipt.MessageResponse
 import com.example.washinton.feature.receipt.TransferOrder
@@ -8,10 +9,11 @@ import javax.inject.Inject
 
 class ProductRepository @Inject constructor(private val apiService: ApiService) {
 
-    suspend fun getProductNames(): Result<List<String>> {
+    suspend fun getProductNames(): Result<List<ProductNameSku>> {
         return try {
             val response = apiService.getProductsNames()
             if (response.isSuccessful) {
+                // Ensure the response body is a list
                 Result.success(response.body() ?: emptyList())
             } else {
                 Result.failure(Exception("Error: ${response.code()}"))
