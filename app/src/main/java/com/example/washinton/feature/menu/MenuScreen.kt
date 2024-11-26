@@ -128,7 +128,9 @@ fun MenuScreen(navController: NavController) {
             .fillMaxWidth()
             .height(150.dp)
             .clip(RoundedCornerShape(20.dp))
-            .background(LightBlue),
+            .background(LightBlue)
+            .clickable{navController.navigate("batches")}
+            ,
         ){
             Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier

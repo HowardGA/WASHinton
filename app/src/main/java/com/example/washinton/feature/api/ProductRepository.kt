@@ -1,5 +1,6 @@
 package com.example.washinton.feature.api
 
+import com.example.washinton.feature.batches.Batches
 import com.example.washinton.feature.products.ProductDetails
 import com.example.washinton.feature.products.ProductNameSku
 import com.example.washinton.feature.receipt.TransferOrderDetails
@@ -86,5 +87,29 @@ class ProductRepository @Inject constructor(private val apiService: ApiService) 
             Result.failure(e)
         }
     }
+
+    suspend fun updateBatchStatusInventory(batchCode: String): Result<String> {
+        return try {
+            val response = apiService.updateBatchStatusInventory(batchCode)
+            if (response.isSuccessful) {
+                val message = response.body()?.message ?: "Unknown error"
+                Result.success(message)
+            } else {
+                Result.failure(Exception("Error: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+        }
+
+    suspend fun getBatchDetails(batchCode: String): Result<Batches> {
+        return try {
+                val batches = apiService.getBatchDetails(batchCode)
+                Result.success(batches)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 
 }

@@ -1,5 +1,6 @@
 package com.example.washinton.feature.api
 
+import com.example.washinton.feature.batches.Batches
 import com.example.washinton.feature.products.ProductDetails
 import com.example.washinton.feature.products.ProductNameSku
 import com.example.washinton.feature.receipt.MessageResponse
@@ -28,5 +29,13 @@ interface ApiService {
 
     @POST("transfer_stock/{orderID}")
     suspend fun updateStoreStock(@Path("orderID") orderID: String): Response<MessageResponse>
+
+    //this is to retrieve the information of a specific batch
+    @GET("batches_details/{batchCode}")
+    suspend fun getBatchDetails(@Path("batchCode") batchCode: String): Batches
+
+    //this is to update de batch status and add the stock to the inventory at once
+    @POST("batch/update-status")
+    suspend fun updateBatchStatusInventory(@Path("batchCode") batchCode: String): Response<MessageResponse>
 }
 
