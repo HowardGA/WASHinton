@@ -1,5 +1,6 @@
 package com.example.washinton.feature.batches
 
+import android.widget.Toast
 import com.example.washinton.feature.receipt.TransferOrderDetails
 import com.example.washinton.feature.receipt.TransferOrderDetailsViewModel
 
@@ -53,6 +54,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -60,8 +62,6 @@ import com.example.washinton.R
 import com.example.washinton.ui.theme.Cream
 import com.example.washinton.ui.theme.LightBlue
 import com.example.washinton.ui.theme.MidBlue
-import com.simonsickle.compose.barcodes.Barcode
-import com.simonsickle.compose.barcodes.BarcodeType
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +69,7 @@ import kotlinx.coroutines.launch
 fun BatchesReceiptComponent(batchDetails: Batches? = null, onClose: () -> Unit) {
     val viewModel: RegisterBatchViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
+    val context = androidx.compose.ui.platform.LocalContext.current
 
     ElevatedCard(
         elevation = CardDefaults.cardElevation(
@@ -193,6 +194,8 @@ fun BatchesReceiptComponent(batchDetails: Batches? = null, onClose: () -> Unit) 
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 16.sp,
                                         lineHeight = 40.sp,
+                                        maxLines = 1, // Restrict to a single line
+                                        overflow = TextOverflow.Ellipsis, // Add ellipsis for long names
                                         modifier = Modifier.width(250.dp)
                                     )
                                 }
@@ -233,7 +236,9 @@ fun BatchesReceiptComponent(batchDetails: Batches? = null, onClose: () -> Unit) 
                         Button(
                             onClick = {
                                 coroutineScope.launch {
-                                    viewModel.updateBatchStock(batchDetails?.code.toString())
+                                    viewModel.updateBatchStock(batchDetails?.code.toString()) { message ->
+                                        Toast.makeText(context, "Admitted successfully: $message", Toast.LENGTH_SHORT).show()
+                                    }
                                     onClose()
                                 }
                             },
@@ -249,6 +254,7 @@ fun BatchesReceiptComponent(batchDetails: Batches? = null, onClose: () -> Unit) 
                             )
                         }
                     }
+
                 }
             }
 

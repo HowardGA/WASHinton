@@ -110,4 +110,11 @@ dependencies {
     // Coroutine support
     implementation(libs.kotlinx.coroutines.android)
 
+    //for notifications
+    implementation ("com.google.firebase:firebase-messaging:23.1.0")
+    //for wearable
+    implementation("com.google.android.gms:play-services-wearable:18.0.0")
+
 }
+
+apply(plugin =  "com.google.gms.google-services")

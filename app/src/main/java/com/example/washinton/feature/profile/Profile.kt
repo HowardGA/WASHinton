@@ -1,12 +1,15 @@
 package com.example.washinton.feature.profile
 
 data class Profile(
-    val user_id: Int = 0,
-    val first_name: String = "",
-    val last_name: String = "",
+    val name: String = "",
     val phone: String = "",
     val email: String = "",
-    val role: String = "",
-    val location_type: String = "",
+    val role: Role = Role(),
+    val locationType: String = "",
     val status: String = "",
+    val FBID: String = ""
+)
+
+data class Role(
+    val name: String = ""
 )

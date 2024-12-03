@@ -25,7 +25,9 @@ object NetworkModule {
             .build()
 
         return Retrofit.Builder()
-            .baseUrl("http://192.168.1.187:8000/api/")// add the actual URL once its on the vps
+         //  .baseUrl("http://192.168.1.187:8000/api/")// add the actual URL once its on the vps
+            //.baseUrl("http://192.168.137.124:8000/api/")// add the actual URL once its on the vps
+            .baseUrl("https://washintonbackend.store/api/")// add the actual URL once its on the vps
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()

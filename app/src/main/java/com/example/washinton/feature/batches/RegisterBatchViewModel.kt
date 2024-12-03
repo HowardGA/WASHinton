@@ -21,17 +21,20 @@ class RegisterBatchViewModel @Inject constructor(
     private val _batches = MutableStateFlow<Batches?>(null)
     val batches: StateFlow<Batches?> = _batches
 
-    fun updateBatchStock(batchCode: String) {
+    fun updateBatchStock(batchCode: String, onSuccess: (String) -> Unit) {
         viewModelScope.launch {
             repository.updateBatchStatusInventory(batchCode)
                 .onSuccess { message ->
                     _message.value = message
+                    onSuccess(message) // Trigger the success callback
                 }
                 .onFailure { error ->
                     _message.value = error.message ?: "Unknown error"
                 }
         }
     }
+
+
 
     fun getBatchDetails(batchCode: String) {
         viewModelScope.launch {

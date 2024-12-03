@@ -95,10 +95,12 @@ fun ReceiptsTableScreen(navController: NavController) {
     // Apply filters whenever the filter criteria or orders change
     LaunchedEffect(transferOrders, selectedStatus, selectedStore) {
         filteredOrders = transferOrders.filter {
-            (selectedStatus.isEmpty() || it.status.contains(selectedStatus, true)) &&
+            (it.status in listOf("Preparing", "Delivering")) &&
+                    (selectedStatus.isEmpty() || it.status.equals(selectedStatus, true)) &&
                     (selectedStore.isEmpty() || it.store.contains(selectedStore, true))
         }
     }
+
 
 
     Scaffold(
@@ -125,10 +127,14 @@ fun ReceiptsTableScreen(navController: NavController) {
     ){innerPadding ->
 
 
-
-        LazyColumn (modifier = with(Modifier) { padding(innerPadding).padding(20.dp) }, verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
-            //Filter
-            item{
+        Box(modifier = Modifier.padding(innerPadding)) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.TopCenter) // Keep filters at the top
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
                     text = "Filter by:",
                     fontSize = 18.sp,
@@ -143,7 +149,7 @@ fun ReceiptsTableScreen(navController: NavController) {
                 ) {
                     DropdownMenuFilter(
                         label = "Status",
-                        options = listOf("Pending", "Delivering", "Delivered"),
+                        options = listOf("Preparing", "Delivering"),
                         selectedOption = selectedStatus,
                         onOptionSelected = { selectedStatus = it }
                     )
@@ -154,90 +160,109 @@ fun ReceiptsTableScreen(navController: NavController) {
                         selectedOption = selectedStore,
                         onOptionSelected = { selectedStore = it },
 
-                    )
+                        )
                 }
 
                 Spacer(modifier = Modifier.size(20.dp))
             }
 
-            items(filteredOrders) { transferDetail ->
+            LazyColumn(
+                modifier = with(Modifier) { padding(innerPadding).padding(20.dp) },
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                items(filteredOrders) { transferDetail ->
 
 
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MidBlue)
-                    .clickable { orderIdToShow = transferDetail.transfer_id.toString()
-                        showPrintBottomSheet = true}
-                ){
-                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .height(150.dp)
-                            .fillMaxWidth()
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MidBlue)
+                        .clickable {
+                            orderIdToShow = transferDetail.transfer_id.toString()
+                            showPrintBottomSheet = true
+                        }
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .height(150.dp)
+                                .fillMaxWidth()
                         ) {
 
 
-                        Icon(
-                            imageVector = Icons.Rounded.Description,
-                            contentDescription = "Arrivals & Departures",
-                            tint = Color.White,
-                            modifier = Modifier
-                                .size(60.dp)
-                                .weight(1f)
-                        )
+                            Icon(
+                                imageVector = Icons.Rounded.Description,
+                                contentDescription = "Arrivals & Departures",
+                                tint = Color.White,
+                                modifier = Modifier
+                                    .size(60.dp)
+                                    .weight(1f)
+                            )
 
 
-                        Column (verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally){
-                            Row (horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically){
-                                Icon(
-                                    imageVector = Icons.Rounded.Store,
-                                    contentDescription = transferDetail.store,
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(25.dp)
-                                )
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Store,
+                                        contentDescription = transferDetail.store,
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                            .size(25.dp)
+                                    )
 
 
-                                Text(
-                                    text = transferDetail.store,
-                                    color = Cream,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 16.sp,
-                                    lineHeight = 40.sp,
-                                    modifier = Modifier.width(250.dp)
-                                )
+                                    Text(
+                                        text = transferDetail.store,
+                                        color = Cream,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 16.sp,
+                                        lineHeight = 40.sp,
+                                        modifier = Modifier.width(250.dp)
+                                    )
+                                }
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.BarChart,
+                                        contentDescription = "status",
+                                        tint = Color.White,
+                                        modifier = Modifier
+                                            .size(25.dp)
+                                    )
+
+
+                                    Text(
+                                        text = transferDetail.status,
+                                        color = Cream,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 16.sp,
+                                        lineHeight = 40.sp,
+                                        modifier = Modifier.width(250.dp)
+                                    )
+                                }
                             }
-                            Row (horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically){
-                                Icon(
-                                    imageVector = Icons.Rounded.BarChart,
-                                    contentDescription = "status",
-                                    tint = Color.White,
-                                    modifier = Modifier
-                                        .size(25.dp)
-                                )
 
 
-                                Text(
-                                    text = transferDetail.status,
-                                    color = Cream,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 16.sp,
-                                    lineHeight = 40.sp,
-                                    modifier = Modifier.width(250.dp)
-                                )
-                            }
                         }
-
 
                     }
 
+                    Spacer(modifier = Modifier.size(20.dp))
                 }
-
-                Spacer(modifier = Modifier.size(20.dp))
-            }
+            } // here
         }
-
         //We should show the bottom sheet after scanning a receipt
         if (showPrintBottomSheet) {
             ModalBottomSheet(

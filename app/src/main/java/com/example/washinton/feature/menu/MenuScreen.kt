@@ -36,7 +36,6 @@ import androidx.navigation.NavController
 import com.example.washinton.ui.theme.Cream
 import com.example.washinton.ui.theme.DarkBlue
 import com.example.washinton.ui.theme.LightBlue
-import com.example.washinton.ui.theme.LightMint
 import com.example.washinton.ui.theme.MidBlue
 import com.example.washinton.ui.theme.WashintonTheme
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
@@ -45,7 +44,7 @@ import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 fun MenuScreen(navController: NavController) {
 
     Column (
-        verticalArrangement = Arrangement.spacedBy(30.dp),modifier = Modifier.padding(20.dp)
+        verticalArrangement = Arrangement.spacedBy(45.dp),modifier = Modifier.padding(20.dp)
     ){
 
         Box(modifier = Modifier
@@ -151,42 +150,6 @@ fun MenuScreen(navController: NavController) {
 
                 Text(
                     text = "Register Incoming Batches",
-                    color = Cream,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 39.sp,
-                    lineHeight = 40.sp,
-                    modifier = Modifier.width(250.dp)
-                )
-
-            }
-
-        }
-
-        Box(modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(MidBlue),
-        ){
-            Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .height(150.dp)
-                    .fillMaxWidth()) {
-
-
-                    Icon(
-                        imageVector = Icons.Rounded.AirportShuttle,
-                        contentDescription = "Arrivals & Departures",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .size(70.dp)
-                            .weight(1f)
-                    )
-
-
-
-                Text(
-                    text = "Arrivals & Departures",
                     color = Cream,
                     fontWeight = FontWeight.Bold,
                     fontSize = 39.sp,

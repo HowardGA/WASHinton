@@ -3,6 +3,7 @@ package com.example.washinton.feature.api
 import com.example.washinton.feature.batches.Batches
 import com.example.washinton.feature.products.ProductDetails
 import com.example.washinton.feature.products.ProductNameSku
+import com.example.washinton.feature.profile.Profile
 import com.example.washinton.feature.receipt.TransferOrderDetails
 import com.example.washinton.feature.receipt.MessageResponse
 import com.example.washinton.feature.receipt.TransferOrder
@@ -63,12 +64,7 @@ class ProductRepository @Inject constructor(private val apiService: ApiService) 
     suspend fun updateTransferStatus(id: String): Result<String> {
         return try {
             val response = apiService.updateTransferStatus(id)
-            if (response.isSuccessful) {
-                val message = response.body()?.message ?: "Unknown error"
-                Result.success(message)
-            } else {
-                Result.failure(Exception("Error: ${response.code()}"))
-            }
+            Result.success(response.message)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -77,6 +73,16 @@ class ProductRepository @Inject constructor(private val apiService: ApiService) 
     suspend fun updateStoreStock(orderID: String): Result<String> {
         return try {
             val response = apiService.updateStoreStock(orderID)
+            Result.success(response.message)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+
+    suspend fun updateBatchStatusInventory(batchCode: String): Result<String> {
+        return try {
+            val response = apiService.updateBatchStatusInventory(BatchCodeRequest(code = batchCode))
             if (response.isSuccessful) {
                 val message = response.body()?.message ?: "Unknown error"
                 Result.success(message)
@@ -88,24 +94,20 @@ class ProductRepository @Inject constructor(private val apiService: ApiService) 
         }
     }
 
-    suspend fun updateBatchStatusInventory(batchCode: String): Result<String> {
-        return try {
-            val response = apiService.updateBatchStatusInventory(batchCode)
-            if (response.isSuccessful) {
-                val message = response.body()?.message ?: "Unknown error"
-                Result.success(message)
-            } else {
-                Result.failure(Exception("Error: ${response.code()}"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-        }
 
     suspend fun getBatchDetails(batchCode: String): Result<Batches> {
         return try {
                 val batches = apiService.getBatchDetails(batchCode)
                 Result.success(batches)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getProfile(FBID: String): Result<Profile> {
+        return try {
+            val profile = apiService.getProfile(FBID)
+            Result.success(profile)
         } catch (e: Exception) {
             Result.failure(e)
         }

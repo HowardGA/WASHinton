@@ -151,6 +151,7 @@ fun SearchProductsScreen(navController: NavController, viewModel: SearchProducts
                     items(filteredProductNames) { productName ->
                         Text(
                             text = productName.name,
+                            color = Color.White,
                             modifier = Modifier.padding(
                                 start = 8.dp,
                                 top = 4.dp,

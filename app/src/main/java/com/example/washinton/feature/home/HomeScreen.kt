@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults.topAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -31,9 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.washinton.feature.menu.MenuScreen
 import com.example.washinton.ui.theme.DarkBlue
-import com.example.washinton.ui.theme.LightBlue
-import com.example.washinton.ui.theme.LightMint
-import com.example.washinton.ui.theme.MidBlue
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,8 +65,10 @@ fun HomeScreen(navController: NavController) {
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(innerPadding)
+                .fillMaxWidth()
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             //Menu goes here
             MenuScreen(navController = navController)
